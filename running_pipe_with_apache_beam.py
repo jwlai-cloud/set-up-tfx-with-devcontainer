@@ -12,8 +12,8 @@ from tfx.orchestration import metadata
 
 if __name__ == '__main__':
   logging.set_verbosity(logging.INFO)
-  logging.info('TensorFlow version: {}'.format(tf.__version__))
-  logging.info('TFX version: {}'.format(tfx.__version__))
+  logging.info(f'TensorFlow version: {tf.__version__}')
+  logging.info(f'TFX version: {tfx.__version__}')
 
   PIPELINE_NAME = 'my_pipeline'
   PIPELINE_ROOT = os.path.join('.', 'my_pipeline_output')
@@ -23,16 +23,13 @@ if __name__ == '__main__':
 
   logging.info("Creating component to read csv")
   data_path = external_input(os.path.join(DATA_DIR))
-  example_gen = CsvExampleGen(data_path) 
+  example_gen = CsvExampleGen(data_path)
   logging.info("Component was created")
 
   statistics_gen = StatisticsGen(examples=example_gen.outputs['examples'])
   schema_gen = SchemaGen(statistics=statistics_gen.outputs['statistics'], infer_feature_shape=False)
- 
-  components.append(example_gen)
-  components.append(statistics_gen)
-  components.append(schema_gen)
 
+  components.extend((example_gen, statistics_gen, schema_gen))
   logging.info("Creating pipeline")
   pipe = pipeline.Pipeline(
     pipeline_name=PIPELINE_NAME,
